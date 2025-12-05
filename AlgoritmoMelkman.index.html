@@ -26,7 +26,7 @@ $(function () {
             text-align: center;
             background-color: white;
             padding: 40px;
-            border-bottom: 5px solid #e91e63;
+            border-bottom: 5px solid #e91e63; /* ROSA FUERTE */
             box-shadow: 0 4px 15px rgba(0,0,0,0.08);
             margin-bottom: 40px;
             border-radius: 8px 8px 0 0;
@@ -44,22 +44,23 @@ $(function () {
             margin-top: 0;
         }
         .author strong {
-            color: #e91e63;
+            color: #e91e63; /* ROSA FUERTE */
             font-weight: 600;
         }
         
+        /* ESTILO DE CAJAS DE TEXTO (ROSITAS) */
         .section-box {
-            background-color: #fff0f5;
+            background-color: #fff0f5; /* Fondo Rosa Pastel */
             padding: 30px;
             margin-bottom: 30px;
             border-radius: 8px;
-            border: 1px solid #f8bbd0;
+            border: 1px solid #f8bbd0; /* Borde rosa suave */
             box-shadow: 0 2px 5px rgba(0,0,0,0.03);
         }
         
         h2 {
             margin-top: 0;
-            color: #c2185b;
+            color: #c2185b; /* Rosa oscuro elegante */
             border-bottom: 1px solid #f48fb1;
             padding-bottom: 10px;
         }
@@ -78,6 +79,7 @@ $(function () {
             margin-bottom: 15px;
         }
 
+        /* Applet */
         .sagecell-container {
             background-color: #fafafa;
             padding: 25px;
@@ -88,6 +90,7 @@ $(function () {
             margin-top: 10px;
         }
         
+        /* Footer */
         .footer {
             text-align: center;
             font-size: 0.9em;
@@ -188,13 +191,14 @@ def visualizacion_melkman(
     N = slider(4, 100, 1, 10, label="Número de Puntos"),
     paso = slider(0, 100, 1, 0, label="Paso")
 ):
-    # CORRECCIÓN IMPORTANTE: Convertimos a int() explícitamente
-    # SageMath pasa 'N' como un tipo especial 'Integer', que random.seed no acepta.
-    # Al hacer int(N * 777), lo convertimos en un número normal de Python.
-    random.seed(int(N * 777)) 
+    # SOLUCIÓN NUCLEAR AL ERROR: 
+    # Convertimos N a string (Texto). Python acepta strings como semilla sin problemas.
+    # Esto evita el conflicto de tipos entre SageMath y Python.
+    random.seed(str(N) + "semilla")
     
-    # Generamos los puntos (floats entre 0.0 y 1.0)
-    P_raw_duplicates = [(random.random(), random.random()) for _ in range(N)]
+    # Generamos los puntos con random() que devuelve decimales (0.0 a 1.0)
+    # Multiplicamos por 20 para que el gráfico tenga un tamaño similar al anterior
+    P_raw_duplicates = [(random.random() * 20, random.random() * 20) for _ in range(N)]
     
     # Eliminamos duplicados y ordenamos para determinismo
     P_raw = list(set(P_raw_duplicates))
@@ -261,7 +265,7 @@ def visualizacion_melkman(
             if es_ultimo_paso and not es_final:
                 G += point(p, size=80, color='gold', zorder=20)
                 G += line(C + [C[0]], color='#e91e63', thickness=2)
-                show(G, aspect_ratio=1, title=f"Paso {paso_efectivo}: {p} - DENTRO de Rq", axes=False)
+                show(G, aspect_ratio=1, title=f"Paso {paso_efectivo}: {p}", axes=False)
                 return
             continue
 
@@ -282,3 +286,52 @@ def visualizacion_melkman(
         while len(C) > 3 and O * areaSignada(C[s_idx], C[t_idx], p) <= 0:
             del C[s_idx]
             if s_idx < idx_q: idx_q -= 1
+            s_idx = posterior(C, idx_q)
+            t_idx = posterior(C, s_idx)
+            
+        if es_ultimo_paso and not es_final:
+            G += point(p, size=80, color='gold', zorder=20)
+            titulo_grafica = f"Paso {paso_efectivo}: {p}"
+
+    # Estilo Final
+    if not P_proc: 
+        # RELLENO ROSA TRANSLÚCIDO
+        G += polygon(C, color='#fadadd', alpha=0.5) 
+        G += line(C + [C[0]], color='#e91e63', thickness=3) 
+        G += point(C, size=20, color='#555555', zorder=30) 
+        titulo_grafica = "Envolvente Convexa Final"
+    else:
+        G += line(C + [C[0]], color='#e91e63', thickness=2)
+
+    show(G, aspect_ratio=1, title=titulo_grafica, axes=False)
+
+</script>
+</div>
+
+  <div class="section-box">
+      <h2>4. Discusión y Aplicaciones Reales</h2>
+      
+      <h3>Discusión del Algoritmo</h3>
+      <p>
+          La principal ventaja del algoritmo de Melkman reside en su eficiencia para datos que ya poseen una estructura topológica ordenada. Mientras que otros algoritmos deben "descubrir" el orden de los puntos, Melkman asume que la entrada es un polígono simple. Esto permite evitar la etapa de ordenación (bottleneck computacional), reduciendo el coste a \(O(N)\).
+      </p>
+      <p>
+          En esta implementación, hemos preprocesado los puntos aleatorios mediante una <strong>poligonización monótona</strong> para convertirlos en un polígono simple válido, requisito indispensable para que Melkman funcione correctamente.
+      </p>
+
+      <h3>Aplicaciones en la Vida Real</h3>
+      <p>El cálculo eficiente de la envoltura convexa tiene aplicaciones críticas en:</p>
+      <ul>
+          <li><strong>Videojuegos y Física Simulada:</strong> Se utiliza para simplificar los cálculos de colisiones. En lugar de comprobar si un objeto complejo choca con otro, se comprueba primero sus "cajas envolventes" (convex hulls), ahorrando millones de cálculos por segundo.</li>
+          <li><strong>Robótica y Planificación de Rutas:</strong> Para que un robot evite obstáculos, estos se suelen modelar mediante sus envolturas convexas para simplificar el espacio de navegación y encontrar caminos seguros más rápido.</li>
+          <li><strong>Procesamiento de Imágenes:</strong> En visión artificial, ayuda a identificar formas, reconocer gestos de la mano o analizar la morfología de células en imágenes médicas.</li>
+          <li><strong>Sistemas de Información Geográfica (GIS):</strong> Para determinar áreas de influencia, fronteras naturales o análisis de dispersión de datos geográficos.</li>
+      </ul>
+  </div>
+
+  <div class="footer">
+      <p>Grado en Matemáticas - Geometría Computacional &copy; 2024</p>
+  </div>
+
+</body>
+</html>
