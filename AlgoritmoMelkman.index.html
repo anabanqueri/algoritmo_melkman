@@ -1,0 +1,334 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <title>Cierre Convexo: Melkman - Ana Banqueri Camy</title>
+    <script src="https://sagecell.sagemath.org/static/jquery.min.js"></script>
+    <script src="https://sagecell.sagemath.org/embedded_sagecell.js"></script>
+    <script>
+$(function () {
+    sagecell.makeSagecell({inputLocation: 'div.compute',
+    						template:       sagecell.templates.minimal,
+                           evalButtonText: 'Lanzar applet interactiva ahora'});
+});
+    </script>
+    <style>
+        body {
+            width: 950px;
+            margin: 40px auto;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #fdfdfd;
+            color: #444;
+            line-height: 1.6;
+        }
+        .header-container {
+            text-align: center;
+            background-color: white;
+            padding: 40px;
+            border-bottom: 5px solid #e91e63; /* ROSA FUERTE */
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            margin-bottom: 40px;
+            border-radius: 8px 8px 0 0;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2.8em;
+            letter-spacing: -1px;
+        }
+        .author {
+            font-size: 1.3em;
+            color: #777;
+            font-weight: 300;
+            margin-top: 0;
+        }
+        .author strong {
+            color: #e91e63; /* ROSA FUERTE */
+            font-weight: 600;
+        }
+        
+        /* ESTILO DE CAJAS DE TEXTO (ROSITAS) */
+        .section-box {
+            background-color: #fff0f5; /* Fondo Rosa Pastel */
+            padding: 30px;
+            margin-bottom: 30px;
+            border-radius: 8px;
+            border: 1px solid #f8bbd0; /* Borde rosa suave */
+            box-shadow: 0 2px 5px rgba(0,0,0,0.03);
+        }
+        
+        h2 {
+            margin-top: 0;
+            color: #c2185b; /* Rosa oscuro elegante */
+            border-bottom: 1px solid #f48fb1;
+            padding-bottom: 10px;
+        }
+        h3 {
+            color: #e91e63;
+            margin-bottom: 5px;
+            margin-top: 20px;
+        }
+        ul {
+            margin-top: 10px;
+        }
+        li {
+            margin-bottom: 8px;
+        }
+        p {
+            margin-bottom: 15px;
+        }
+
+        /* Applet */
+        .sagecell-container {
+            background-color: #fafafa;
+            padding: 25px;
+            border-radius: 8px;
+            border: 1px solid #eee;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            margin-bottom: 40px;
+            margin-top: 10px;
+        }
+        
+        /* Footer */
+        .footer {
+            text-align: center;
+            font-size: 0.9em;
+            color: #999;
+            margin-top: 50px;
+            border-top: 1px solid #eee;
+            padding-top: 20px;
+        }
+    </style>
+  </head>
+  <body>
+
+  <div class="header-container">
+      <h1>Cierre Convexo: Algoritmo de Melkman</h1>
+      <p class="author">Proyecto realizado por: <strong>Ana Banqueri Camy</strong></p>
+  </div>
+
+  <div class="section-box">
+      <h2>1. Introducción</h2>
+      <p>
+          En el campo de la Geometría Computacional, el cálculo de la <strong>envoltura convexa</strong> (o cierre convexo) es un problema fundamental. Consiste en encontrar el polígono convexo más pequeño que contiene a todos los puntos de un conjunto dado.
+      </p>
+      <p>
+          Este proyecto implementa el <strong>Algoritmo de Melkman</strong>, publicado en 1987. Este método destaca por ser el algoritmo óptimo para calcular la envoltura convexa de una <em>polilínea simple</em> (un polígono cuyos lados no se cruzan entre sí).
+      </p>
+      <p>
+          A diferencia de algoritmos generales como <em>Graham Scan</em> o <em>QuickHull</em>, que tienen una complejidad de \(O(N \log N)\) debido a la necesidad de ordenar los puntos angularmente, el algoritmo de Melkman aprovecha el orden preexistente de los vértices en una polilínea simple para lograr una complejidad temporal de <strong>\(O(N)\)</strong> (tiempo lineal).
+      </p>
+      <p>
+          Su implementación se basa en una estructura de datos de <strong>doble cola (deque)</strong>, permitiendo añadir y retirar vértices tanto por el principio como por el final de la estructura para mantener la convexidad en cada paso.
+      </p>
+  </div>
+
+  <div class="section-box">
+      <h2>2. Instrucciones de uso</h2>
+      <p>A continuación se detalla cómo utilizar la applet interactiva:</p>
+      <ul>
+          <li><strong>Paso 1:</strong> Pulse el botón <em>"Lanzar applet interactiva ahora"</em> para cargar el motor matemático SageMath.</li>
+          <li><strong>Paso 2:</strong> Utilice el deslizador <strong>"Número de Puntos"</strong> para definir la cantidad de vértices de la polilínea (hasta 100 puntos).</li>
+          <li><strong>Paso 3:</strong> Utilice el deslizador <strong>"Paso"</strong> para avanzar en la ejecución del algoritmo:
+              <ul>
+                  <li>Al inicio (Paso 0-3), se observa la poligonización y el triángulo inicial.</li>
+                  <li>Al avanzar, los puntos amarillos indican el vértice que se está procesando.</li>
+                  <li>Si el título indica <em>"DENTRO de Rq"</em>, el punto se descarta. Si indica <em>"FUERA"</em>, se añade a la envoltura y se repara la convexidad.</li>
+              </ul>
+          </li>
+          <li><strong>Resultado Final:</strong> Cuando el algoritmo termina, se mostrará la envoltura convexa final con relleno <strong>rosa translúcido</strong> y bordes destacados.</li>
+      </ul>
+  </div>
+
+<div class="compute sagecell-container">
+<script type="text/x-sage">
+import random
+
+# --- MOTOR DEL ALGORITMO ---
+
+def areaSignada(a, b, c):
+    return (b[0]-a[0])*(c[1]-a[1]) - (b[1]-a[1])*(c[0]-a[0])
+
+def anterior(C, i):
+    return (i - 1) % len(C)
+
+def posterior(C, i):
+    return (i + 1) % len(C)
+
+def en_Rq_fast(p, C, O, idx_q):
+    if len(C) < 3: return False
+    q = C[idx_q]
+    prev_idx = anterior(C, idx_q)
+    next_idx = posterior(C, idx_q)
+    left = areaSignada(C[prev_idx], q, p) * O
+    right = areaSignada(q, C[next_idx], p) * O
+    return (left >= 0 and right >= 0)
+
+def Ymax(p): return max(p, key=lambda x: [x[1], x[0]])
+def Ymin(p): return min(p, key=lambda x: [x[1], x[0]]) 
+def ordenY(p): return sorted(p, key=lambda x: [x[1], x[0]])
+
+def poligonizacionYmonotona(P):
+    if len(P) < 3: return P
+    mi = Ymin(P)
+    ma = Ymax(P)
+    izquierda = []
+    derecha = []
+    for i in P:
+        if i == mi or i == ma: continue
+        if areaSignada(mi, ma, i) > 0:
+            izquierda.append(i)
+        else:
+            derecha.append(i)
+    return [mi] + ordenY(derecha) + [ma] + list(reversed(ordenY(izquierda)))
+
+
+# --- VISUALIZACIÓN INTERACTIVA ---
+
+@interact
+def visualizacion_melkman(
+    N = slider(4, 100, 1, 10, label="Número de Puntos"),
+    paso = slider(0, 100, 1, 0, label="Paso")
+):
+    # CORRECCIÓN DE BUG: Convertimos explícitamente a int() para que random.seed no falle en Sage
+    random.seed(int(N * 777)) 
+    
+    # Generamos los puntos (floats entre 0.0 y 1.0)
+    P_raw_duplicates = [(random.random(), random.random()) for _ in range(N)]
+    
+    # Eliminamos duplicados y ordenamos para determinismo
+    P_raw = list(set(P_raw_duplicates))
+    P_raw.sort()
+    
+    if len(P_raw) < 3:
+        print("Se requieren más puntos únicos para calcular el cierre.")
+        return
+
+    P_simple = poligonizacionYmonotona(P_raw)
+    
+    max_pasos = len(P_simple)
+    paso_efectivo = min(paso, max_pasos)
+
+    # Lógica Visual
+    es_final = (paso_efectivo >= max_pasos)
+    tamano_base = 20 if es_final else 30
+    
+    G = Graphics()
+    
+    # Polígono gris de fondo solo si no hemos terminado
+    if not es_final:
+        G += polygon(P_simple, color='#bdc3c7', alpha=0.4, zorder=0)
+        
+    G += point(P_raw, size=tamano_base, color='#555555', zorder=10)
+    
+    titulo_grafica = "Estado Inicial"
+    
+    if paso_efectivo == 0:
+        show(G, aspect_ratio=1, title="Entrada: Polígono Simple", axes=False)
+        return
+
+    P_proc = list(P_simple)
+    
+    # Inicialización Segura
+    p1 = P_proc.pop(0)
+    p2 = P_proc.pop(0)
+    q = P_proc.pop(0)
+    C = [p1, p2, q]
+    idx_q = 2 
+    
+    area_inicial = areaSignada(p1, p2, q)
+    O = 1 if area_inicial > 0 else -1
+    if area_inicial == 0: O = 1 
+    
+    puntos_procesados = 3
+    
+    if paso_efectivo <= 3:
+        G += line(C + [C[0]], color='#e91e63', thickness=2)
+        show(G, aspect_ratio=1, title="Inicialización", axes=False)
+        return
+
+    # Bucle Principal
+    while P_proc:
+        if puntos_procesados >= paso_efectivo:
+            break
+            
+        p = P_proc.pop(0)
+        puntos_procesados += 1
+        es_ultimo_paso = (puntos_procesados == paso_efectivo)
+        
+        # 1. Chequeo Rq
+        if en_Rq_fast(p, C, O, idx_q):
+            if es_ultimo_paso and not es_final:
+                G += point(p, size=80, color='gold', zorder=20)
+                G += line(C + [C[0]], color='#e91e63', thickness=2)
+                show(G, aspect_ratio=1, title=f"Paso {paso_efectivo}: {p} - DENTRO de Rq", axes=False)
+                return
+            continue
+
+        # 2. Retroceso
+        s_idx = idx_q
+        t_idx = anterior(C, s_idx)
+        while O * areaSignada(C[t_idx], C[s_idx], p) <= 0:
+            s_idx = t_idx
+            t_idx = anterior(C, s_idx)
+        
+        idx_insertar = (s_idx + 1) % (len(C) + 1)
+        C.insert(idx_insertar, p)
+        idx_q = idx_insertar
+
+        # 3. Avance
+        s_idx = posterior(C, idx_q)
+        t_idx = posterior(C, s_idx)
+        while len(C) > 3 and O * areaSignada(C[s_idx], C[t_idx], p) <= 0:
+            del C[s_idx]
+            if s_idx < idx_q: idx_q -= 1
+            s_idx = posterior(C, idx_q)
+            t_idx = posterior(C, s_idx)
+            
+        if es_ultimo_paso and not es_final:
+            G += point(p, size=80, color='gold', zorder=20)
+            titulo_grafica = f"Paso {paso_efectivo}: {p} - FUERA de Rq"
+
+    # Estilo Final
+    if not P_proc: 
+        # RELLENO ROSA TRANSLÚCIDO
+        G += polygon(C, color='#fadadd', alpha=0.5) 
+        G += line(C + [C[0]], color='#e91e63', thickness=3) 
+        G += point(C, size=20, color='#555555', zorder=30) 
+        titulo_grafica = "Envolvente Convexa Final"
+    else:
+        G += line(C + [C[0]], color='#e91e63', thickness=2)
+
+    show(G, aspect_ratio=1, title=titulo_grafica, axes=False)
+
+</script>
+</div>
+
+  <div class="section-box">
+      <h2>4. Discusión y Aplicaciones Reales</h2>
+      
+      <h3>Discusión del Algoritmo</h3>
+      <p>
+          La principal ventaja del algoritmo de Melkman reside en su eficiencia para datos que ya poseen una estructura topológica ordenada. Mientras que otros algoritmos deben "descubrir" el orden de los puntos, Melkman asume que la entrada es un polígono simple. Esto permite evitar la etapa de ordenación (bottleneck computacional), reduciendo el coste a \(O(N)\).
+      </p>
+      <p>
+          En esta implementación, hemos preprocesado los puntos aleatorios mediante una <strong>poligonización monótona</strong> para convertirlos en un polígono simple válido, requisito indispensable para que Melkman funcione correctamente.
+      </p>
+
+      <h3>Aplicaciones en la Vida Real</h3>
+      <p>El cálculo eficiente de la envoltura convexa tiene aplicaciones críticas en:</p>
+      <ul>
+          <li><strong>Videojuegos y Física Simulada:</strong> Se utiliza para simplificar los cálculos de colisiones. En lugar de comprobar si un objeto complejo choca con otro, se comprueba primero sus "cajas envolventes" (convex hulls), ahorrando millones de cálculos por segundo.</li>
+          <li><strong>Robótica y Planificación de Rutas:</strong> Para que un robot evite obstáculos, estos se suelen modelar mediante sus envolturas convexas para simplificar el espacio de navegación y encontrar caminos seguros más rápido.</li>
+          <li><strong>Procesamiento de Imágenes:</strong> En visión artificial, ayuda a identificar formas, reconocer gestos de la mano o analizar la morfología de células en imágenes médicas.</li>
+          <li><strong>Sistemas de Información Geográfica (GIS):</strong> Para determinar áreas de influencia, fronteras naturales o análisis de dispersión de datos geográficos.</li>
+      </ul>
+  </div>
+
+  <div class="footer">
+      <p>Grado en Ingeniería Matemática e Inteligencia Artificial - Geometría Computacional &copy; 2024</p>
+  </div>
+
+</body>
+</html>
