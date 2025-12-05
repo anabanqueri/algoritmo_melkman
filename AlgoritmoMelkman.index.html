@@ -143,8 +143,6 @@ $(function () {
 
 <div class="compute sagecell-container">
 <script type="text/x-sage">
-import random
-
 # --- MOTOR DEL ALGORITMO ---
 
 def areaSignada(a, b, c):
@@ -191,16 +189,13 @@ def visualizacion_melkman(
     N = slider(4, 100, 1, 10, label="Número de Puntos"),
     paso = slider(0, 100, 1, 0, label="Paso")
 ):
-    # SOLUCIÓN NUCLEAR AL ERROR: 
-    # Convertimos N a string (Texto). Python acepta strings como semilla sin problemas.
-    # Esto evita el conflicto de tipos entre SageMath y Python.
-    random.seed(str(N) + "semilla")
+    # Usamos set_random_seed de Sage (acepta Integer sin error)
+    set_random_seed(N)
     
-    # Generamos los puntos con random() que devuelve decimales (0.0 a 1.0)
-    # Multiplicamos por 20 para que el gráfico tenga un tamaño similar al anterior
-    P_raw_duplicates = [(random.random() * 20, random.random() * 20) for _ in range(N)]
+    # Generamos los puntos (random de sage devuelve 0.0 a 1.0, escalamos a 20)
+    P_raw_duplicates = [(random() * 20, random() * 20) for _ in range(N)]
     
-    # Eliminamos duplicados y ordenamos para determinismo
+    # Eliminamos duplicados y ordenamos
     P_raw = list(set(P_raw_duplicates))
     P_raw.sort()
     
@@ -265,7 +260,7 @@ def visualizacion_melkman(
             if es_ultimo_paso and not es_final:
                 G += point(p, size=80, color='gold', zorder=20)
                 G += line(C + [C[0]], color='#e91e63', thickness=2)
-                show(G, aspect_ratio=1, title=f"Paso {paso_efectivo}: {p}", axes=False)
+                show(G, aspect_ratio=1, title=f"Paso {paso_efectivo}: {p} - DENTRO de Rq", axes=False)
                 return
             continue
 
@@ -291,7 +286,7 @@ def visualizacion_melkman(
             
         if es_ultimo_paso and not es_final:
             G += point(p, size=80, color='gold', zorder=20)
-            titulo_grafica = f"Paso {paso_efectivo}: {p}"
+            titulo_grafica = f"Paso {paso_efectivo}: {p} - FUERA de Rq"
 
     # Estilo Final
     if not P_proc: 
